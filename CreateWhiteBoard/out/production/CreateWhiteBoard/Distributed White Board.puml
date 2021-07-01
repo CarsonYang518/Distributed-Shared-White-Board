@@ -1,0 +1,101 @@
+@startuml
+actor manager as M
+participant "Class CreateWhiteBoard " as CWB
+participant "Class ServerGUI" as SG
+participant "Class RemoteCall" as RC
+participant "Class MessageThread" as MT
+participant "File System" as FS
+
+actor user as U
+participant "Class JoinWhiteBoard " as JWB
+participant "Class ClientGUI" as CG
+participant "Class ClientReceive" as CR
+
+
+M -> CWB: Create white board
+activate CWB
+CWB -> CWB:  handleArgs()
+CWB -> RC: Create Registry and bind (Java RMI)
+activate RC
+CWB -> SG: startGui()
+activate SG
+RC -> CWB: Success
+deactivate RC
+SG -> CWB: Success
+CWB -> CWB: Listening for the connection requests
+CWB --> M: Done
+
+U -> JWB: Join white board
+activate JWB
+JWB -> JWB: handleArgs()
+JWB -> JWB: Bind Registry (Java RMI)
+JWB -> CWB: requestConnect()
+CWB -> JWB: Not Approval
+deactivate JWB
+CWB -> JWB: Approval
+activate JWB
+JWB -> CWB: Connect
+CWB --> JWB: Success
+CWB -> MT: Create thread
+activate MT
+MT --> CWB: Done
+JWB -> CG: startGui()
+activate CG
+CG -> JWB: Success
+JWB -> CR: Create thread
+activate CR
+MT -> CR: History paints
+CR -> CG: Show paints
+CR --> JWB: Done
+
+CR -> CG: Show message/paint
+CR -> MT: Send message/paint
+MT -> Other_users_threads: Propagate message/paint
+activate Other_users_threads
+Other_users_threads -> Other_users_threads: Show message/paint
+MT -> SG: Show message/paint
+MT --> CR: Done
+
+MT -> FS: Save/SaveAS file
+activate FS
+FS --> MT: Done
+deactivate FS
+
+MT -> FS: Open file
+activate FS
+deactivate FS
+FS --> MT :Done
+MT -> SG: Show paint
+MT -> CR: Propagate paint
+MT -> Other_users_threads: Propagate paint
+CR -> CG: Show paint
+Other_users_threads -> Other_users_threads : Show paint
+
+MT -> SG: Clear canvas
+MT -> CR: New canvas
+MT -> Other_users_threads : New canvas
+CR -> CG: Clear canvas
+Other_users_threads -> Other_users_threads : Clear canvas
+
+MT -> SG: Show message
+MT -> CR: Propagate message
+MT -> Other_users_threads: Propagate message
+CR -> CG: Show message
+Other_users_threads -> Other_users_threads : Show message
+
+MT -> CR: Kick out
+CR -> CR: Close
+CR -> CG: Close
+deactivate CR
+deactivate CG
+deactivate JWB
+
+MT -> Other_users_threads: Propagate Close
+MT -> MT : Close
+deactivate MT
+deactivate SG
+deactivate CWB
+Other_users_threads -> Other_users_threads: Close
+deactivate Other_users_threads
+
+@enduml

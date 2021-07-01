@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CreateWhiteBoard:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CreateWhiteBoard_jar</output-path>
+    <root id="archive" name="CreateWhiteBoard.jar">
+      <element id="module-output" name="CreateWhiteBoard" />
+    </root>
+  </artifact>
+</component>
